@@ -25,6 +25,7 @@ from mycroft.skills.core import MycroftSkill, intent_handler
 from mycroft.util.format import pronounce_number
 from mycroft.util.lang.format_de import nice_time_de, pronounce_ordinal_de
 from mycroft.messagebus.message import Message
+from mycroft.skills.core import resting_screen_handler
 
 # TODO: This is temporary until nice_time() gets fixed in mycroft-core's
 # next release
@@ -158,21 +159,8 @@ class TimeSkill(MycroftSkill):
                          datetime.timedelta(seconds=60))
         self.schedule_repeating_event(self.update_display, callback_time, 10)
 
-        if 'gui' in dir(self):
-            # Register for handling idle/resting screen
-            msg_type = '{}.{}'.format(self.skill_id, 'idle')
-            self.add_event(msg_type, self.handle_idle)
-            self.add_event('mycroft.mark2.collect_idle',
-                           self.handle_collect_request)
-
-    def handle_collect_request(self, message):
-        self.log.info('Registering idle screen')
-        self.bus.emit(Message('mycroft.mark2.register_idle',
-                              data={'name': 'Time and Date',
-                                    'id': self.skill_id}))
-        self.log.info('Done')
-
-    def handle_idle(self, message):
+    @resting_screen_handler('Time and Date')
+    def idle_screen(self, message):
         self.log.info('Activating Time/Date resting page')
         self.gui['time_string'] = self.get_display_time()
         self.gui['ampm_string'] = ''
