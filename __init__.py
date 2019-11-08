@@ -25,6 +25,8 @@ from mycroft.skills.core import MycroftSkill, intent_handler
 from mycroft.util.time import now_local
 from mycroft.util.format import pronounce_number, nice_time
 from mycroft.util.lang.format_de import nice_time_de, pronounce_ordinal_de
+from ummalqura.hijri_date import HijriDate
+from mycroft.util.time import now_local
 
 
 # TODO: This is temporary until nice_time() gets fixed in mycroft-core's
@@ -35,7 +37,7 @@ def serialize(dt):
 
 
 
-
+#Custom nice_date function for the datetime skill (different from the one in the fromat_ar)
 def nice_date(dt, lang, now):
 
         days = {
@@ -249,21 +251,24 @@ class TimeSkill(MycroftSkill):
             return
 
         # Get the current date
-        # If language is German, use nice_date_de
-        # otherwise use locale
-
+           
         lang_lower = str(self.lang).lower()
-        if lang_lower.startswith("de"):
-            speak = nice_date_de(local_date)
-        else:
+
+        if lang_lower.startswith("ar"):
             speak = nice_date(local_date, self.lang, now=now_local())
+
+
         if self.config_core.get('date_format') == 'MDY':
             show = local_date.strftime("%-m/%-d/%Y")
         else:
             show = nice_date(local_date)
 
+
+       
+
         # speak it
         self.speak_dialog("date", {"date": speak})
+
 
         # and briefly show the time
         self.answering_query = True
